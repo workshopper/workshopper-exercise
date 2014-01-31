@@ -90,7 +90,7 @@ Exercise.prototype.kill = function () {
 
 
 // override this to do something with stdout of both submission and solution
-Exercise.prototype.process = function (mode) {
+Exercise.prototype.process = function (/* mode */) {
   this.submissionStdout.pipe(process.stdout)
   this.submissionChild.stderr.pipe(process.stderr)
 }
@@ -122,8 +122,27 @@ Exercise.prototype.getExerciseText = function (callback) {
       done()
     })
   }.bind(this))
-
 }
+
+
+Exercise.prototype.getSolutionFiles = function (callback) {
+  var solutionDir = path.join(this.dir, './solution/')
+
+  fs.readdir(solutionDir, function (err, list) {
+    if (err)
+      return callback(err)
+
+    list = list
+      .filter(function (f) { return (/\.js$/).test(f) })
+      .map(function (f) { return path.join(solutionDir, f)})
+
+    callback(null, list)
+  })
+}
+
+
+// override this if you have clean-up to perform
+Exercise.prototype.end = function () {}
 
 
 module.exports = Exercise
