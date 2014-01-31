@@ -31,10 +31,8 @@ Exercise.prototype.setup = function (callback) {
   process.nextTick(callback)
 }
 
-
-Exercise.prototype.run = function (submission, args) {
+function runVerify (mode, submission, args) {
   this.submission     = submission
-
   // default args, override if you want to pass special args to the
   // solution and/or submission, override this.setup to do this
   this.submissionArgs = Array.prototype.slice.call(args)
@@ -44,8 +42,18 @@ Exercise.prototype.run = function (submission, args) {
     if (err)
       this.emit('error', err)
 
-    this.execute('run')
+    this.execute(mode)
   }.bind(this))
+}
+
+
+Exercise.prototype.run = function (submission, args) {
+  runVerify.call(this, 'run', submission, args)
+}
+
+
+Exercise.prototype.verify = function (submission, args) {
+  runVerify.call(this, 'verify', submission, args)
 }
 
 
@@ -57,17 +65,17 @@ Exercise.prototype.getStdout = function (type, child) {
 
 
 Exercise.prototype.execute = function (mode) {
-  this.submissionChild  = spawn(this.submission, this.submissionArgs, this.env)
+  this.submissionChild  = spawn(process.execPath, [ this.submission ].concat(this.submissionArgs), this.env)
   this.submissionStdout = this.getStdout('submission', this.submissionChild)
 
   if (mode == 'verify') {
-    this.solutionChild  = spawn(this.solution, this.solutionArgs, this.env)
+    this.solutionChild  = spawn(process.execPath, [ this.solution ].concat(this.solutionArgs), this.env)
     this.solutionStdout = this.getStdout('solution', this.solutionChild)
   }
 
   this.submissionChild.on('end', this.kill.bind(this))
 
-  this.process()
+  this.process(mode)
 }
 
 
@@ -81,14 +89,10 @@ Exercise.prototype.kill = function () {
 }
 
 
-Exercise.prototype.process = function () {
+// override this to do something with stdout of both submission and solution
+Exercise.prototype.process = function (mode) {
   this.submissionStdout.pipe(process.stdout)
   this.submissionChild.stderr.pipe(process.stderr)
-
-  if (this.solutionChild) {
-    this.submissionStdout.pipe(process.stdout)
-    this.submissionChild.stderr.pipe(process.stderr)
-  }
 }
 
 
@@ -105,7 +109,7 @@ Exercise.prototype.getExerciseText = function (callback) {
           if (err)
             return callback(err)
 
-          callback(null, path.extname(file).replace(/^\//, ''), text)
+          callback(null, path.extname(file).replace(/^\./, ''), text)
         })
       })
 
@@ -123,63 +127,3 @@ Exercise.prototype.getExerciseText = function (callback) {
 
 
 module.exports = Exercise
-
-/*
-
-Exercise.prototype.getSubmissionCommand = function (file) {
-  var args = this._runner.args || this._runner.submissionArgs || []
-    , exec
-
-  if (this._runner.wrap || this._runner.submissionWrap) {
-    exec = [ require.resolve('./exec-wrapper') ]
-    exec = exec.concat(this._runner.wrap || this._runner.submissionWrap)
-    exec = exec.concat(file)
-  } else {
-    exec = [ file ]
-  }
-
-  return exec.concat(args)
-}
-
-Exercise.prototype.getSolutionCommand = function () {
-  var args = this._runner.args || this._runner.solutionArgs || []
-    , exec
-
-  if (this._runner.wrap || this._runner.solutionWrap) {
-    exec = [ require.resolve('./exec-wrapper') ]
-    exec = exec.concat(this._runner.wrap || this._runner.solutionWrap)
-    exec = exec.concat(path.join(this._dir, 'solution.js'))
-  } else {
-    exec = [ path.join(this._dir, 'solution.js') ]
-  }
-
-  return exec.concat(args)
-}
-
-Exercise.prototype.execute = function (mode, file) {
-  var self = this
-    , submission
-    , solution
-    , submissionStdout
-    , solutionStdout
-
-  function kill () {
-    submission && typeof submission.kill == 'function' && submission.kill()
-    solution && typeof solution.kill == 'function' && solution.kill()
-    setTimeout(self.emit.bind(self, 'end'), 10)
-  }
-
-  submission = spawn(process.execPath, this.getSubmissionCommand(file))
-  submissionStdout = this._runner.submissionStdout || submission.stdout
-
-  if (mode == 'run') {
-    submissionStdout.pipe(process.stdout)
-    submission.stderr.pipe(process.stderr)
-    submissionStdout.on('end', kill)
-    return
-  }
-
-  solution = spawn(process.execPath, this.getSolutionCommand())
-  solutionStdout = this._runner.solutionStdout || solution.stdout
-}
-*/

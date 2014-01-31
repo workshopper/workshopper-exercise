@@ -10,6 +10,10 @@
   },
   "license": "MIT",
   "dependencies": {
-    "after": "~0.8.1"
+    "after": "~0.8.1",
+    "chalk": "~0.4.0",
+    "through2": "~0.4.1",
+    "split": "~0.3.0",
+    "tuple-stream": "0.0.2"
   }
 }
