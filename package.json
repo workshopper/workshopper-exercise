@@ -1,0 +1,15 @@
+{
+  "name": "workshopper-exercise",
+  "version": "0.0.0",
+  "description": "An exercise runner component for the Workshopper framework",
+  "main": "./workshopper.js",
+  "author": "Rod Vagg <rod@vagg.org> (https://github.com/rvagg)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rvagg/workshopper-exercise.git"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "after": "~0.8.1"
+  }
+}
