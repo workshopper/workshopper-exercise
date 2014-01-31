@@ -77,7 +77,7 @@ CompareStdoutExercise.prototype.process = function (mode) {
           _colourfn(lineStr)
         + _colourfn(wrap(actual, 40))
         + _colourfn('\u2502')
-        + (eq ? '    ' : _colourfn(chalk.bold(' != ')))
+        + _colourfn(chalk.bold(eq ? ' == ' : ' != '))
         + _colourfn('\u2502   ')
         + _colourfn(wrap(expected, 40))
       ) + '\n')
