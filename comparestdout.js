@@ -19,7 +19,7 @@ CompareStdoutExercise.prototype.verify = function () {
     , solutionStdout
     , this._runner.longOutput
     , function (err, status) {
-        kill()
+        block()
         if (err)
           return self.emit('error')
         self.emit(status)
