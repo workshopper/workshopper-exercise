@@ -6,15 +6,9 @@ const Exercise = require('./exercise')
     , through2 = require('through2')
 
 
-function CompareStdoutExercise () {
-  if (!(this instanceof CompareStdoutExercise))
-    return new CompareStdoutExercise()
-
-  Exercise.call(this)
+function comparestdout (exercise) {
+  return exercise.addProcessor(processor)
 }
-
-
-inherits(CompareStdoutExercise, Exercise)
 
 
 function colourfn (type) {
@@ -40,13 +34,11 @@ function wrap (s_, n) {
 }
 
 
-CompareStdoutExercise.prototype.process = function (mode) {
+function processor (mode, callback) {
   this.submissionChild.stderr.pipe(process.stderr)
 
-  if (!this.solutionChild) {
-    this.submissionStdout.pipe(process.stdout)
-    return
-  }
+  if (mode == 'run' || !this.solutionChild) // no compare needed
+    return this.submissionStdout.pipe(process.stdout)
 
   console.log(chalk.yellow.bold('\nYour submission results compared to the expected:\n'))
 
@@ -60,44 +52,42 @@ CompareStdoutExercise.prototype.process = function (mode) {
       , _colourfn = colourfn(eq ? 'PASS' : 'FAIL')
       , actual    = chunk[0] == null ? '' : JSON.stringify(chunk[0])
       , expected  = chunk[1] == null ? '' : JSON.stringify(chunk[1])
+      , output
 
     equal = equal && eq
 
     if (this.long) {
-      callback(null,
+
+      output =
           chalk.yellow.bold(lineStr + '  ACTUAL:  ')
         + _colourfn(actual)
         + '\n'
         + chalk.yellow.bold(lineStr + 'EXPECTED:  ')
         + _colourfn(expected)
         + '\n\n'
-      )
+
     } else {
-      callback(null, (
+
+      output =
           _colourfn(lineStr)
         + _colourfn(wrap(actual, 40))
         + _colourfn('\u2502')
         + _colourfn(chalk.bold(eq ? ' == ' : ' != '))
         + _colourfn('\u2502   ')
-        + _colourfn(wrap(expected, 40))
-      ) + '\n')
+        + _colourfn(expected)
+        + '\n'
+
     }
+
+      callback(null, output)
   }
 
-  function flush (callback) {
+  function flush (_callback) {
     output.push('\n')
 
-    callback(null)
+    _callback(null)
 
-    if (!equal)
-      return this.emit('fail')
-
-    if (typeof this.custom != 'function')
-      return this.emit('pass')
-
-    this.custom(function (err) {
-      this.emit(!err ? 'pass' : 'fail')
-    }.bind(this))
+    callback(null, equal) // process() callback
   }
 
   output = through2.obj(transform.bind(this), flush.bind(this))
@@ -110,8 +100,6 @@ CompareStdoutExercise.prototype.process = function (mode) {
   tuple(this.submissionStdout.pipe(split()), this.solutionStdout.pipe(split()))
     .pipe(output)
     .pipe(process.stdout)
-
-  return output
 }
 
-module.exports = CompareStdoutExercise
+module.exports = comparestdout

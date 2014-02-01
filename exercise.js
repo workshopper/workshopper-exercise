@@ -6,10 +6,23 @@ const path         = require('path')
     , after        = require('after')
 
 
-function Exercise () {}
+function Exercise () {
+  if (!(this instanceof Exercise))
+    return new Exercise()
+
+  EventEmitter.call(this)
+
+  this._processors = []
+}
 
 
 inherits(Exercise, EventEmitter)
+
+
+Exercise.prototype.addProcessor = function (processor) {
+  this._processors.push(processor)
+  return this
+}
 
 
 Exercise.prototype.init = function (id, name, dir, number) {
@@ -31,7 +44,7 @@ Exercise.prototype.setup = function (callback) {
   process.nextTick(callback)
 }
 
-function runVerify (mode, submission, args) {
+function runVerify (mode, submission, args, callback) {
   this.submission     = submission
   // default args, override if you want to pass special args to the
   // solution and/or submission, override this.setup to do this
@@ -40,20 +53,20 @@ function runVerify (mode, submission, args) {
 
   this.setup(function (err) {
     if (err)
-      this.emit('error', err)
+      return callback('error', err)
 
-    this.execute(mode)
+    this.execute(mode, callback)
   }.bind(this))
 }
 
 
-Exercise.prototype.run = function (submission, args) {
-  runVerify.call(this, 'run', submission, args)
+Exercise.prototype.run = function (submission, args, callback) {
+  runVerify.call(this, 'run', submission, args, callback)
 }
 
 
-Exercise.prototype.verify = function (submission, args) {
-  runVerify.call(this, 'verify', submission, args)
+Exercise.prototype.verify = function (submission, args, callback) {
+  runVerify.call(this, 'verify', submission, args, callback)
 }
 
 
@@ -64,35 +77,66 @@ Exercise.prototype.getStdout = function (type, child) {
 }
 
 
-Exercise.prototype.execute = function (mode) {
+Exercise.prototype.execute = function (mode, callback) {
+  var ended = after(mode == 'verify' ? 2 : 1, this.kill.bind(this))
+
   this.submissionChild  = spawn(process.execPath, [ this.submission ].concat(this.submissionArgs), this.env)
   this.submissionStdout = this.getStdout('submission', this.submissionChild)
+
+  this.submissionStdout.on('end', ended)
 
   if (mode == 'verify') {
     this.solutionChild  = spawn(process.execPath, [ this.solution ].concat(this.solutionArgs), this.env)
     this.solutionStdout = this.getStdout('solution', this.solutionChild)
+
+    this.solutionStdout.on('end', ended)
   }
 
-  this.submissionChild.on('end', this.kill.bind(this))
-
-  this.process(mode)
+  this.process(mode, callback)
 }
 
 
 Exercise.prototype.kill = function () {
-  [ this.submissionChild, this.solutionChild ].forEach(function (child) {
+  ;[ this.submissionChild, this.solutionChild ].forEach(function (child) {
     if (child && typeof child.kill == 'function')
       child.kill()
   })
 
-  setTimeout(this.emit.bind(this, 'end'), 10)
+  setTimeout(function () {
+    this.emit('end')
+  }.bind(this), 10)
 }
 
 
 // override this to do something with stdout of both submission and solution
-Exercise.prototype.process = function (/* mode */) {
-  this.submissionStdout.pipe(process.stdout)
-  this.submissionChild.stderr.pipe(process.stderr)
+Exercise.prototype.process = function (mode, callback) {
+  var processors = this._processors
+    , passed     = true
+    , self       = this
+
+  if (!processors.length) {
+    this.submissionStdout.pipe(process.stdout)
+    this.submissionChild.stderr.pipe(process.stderr)
+    return callback(null, true) // automatic pass!
+  }
+
+  ;(function next (i) {
+    if (i == processors.length) {
+      return process.nextTick(function () {
+        callback(null, passed)
+      })
+    }
+
+    processors[i].call(self, mode, function (err, pass) {
+      if (err)
+        return callback(err)
+
+      if (!pass)
+        passed = false
+
+      next(++i)
+    })
+  })(0)
 }
 
 
