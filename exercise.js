@@ -12,6 +12,7 @@ function Exercise () {
 
   EventEmitter.call(this)
 
+  this._setups     = []
   this._processors = []
 }
 
@@ -19,8 +20,39 @@ function Exercise () {
 inherits(Exercise, EventEmitter)
 
 
+// for addVerifyProcessor and addVerifySetup
+function verifyOnly (fn) {
+  return function (mode, callback) {
+    if (mode == 'run')
+      return callback(null, true)
+
+    fn.call(this, callback)
+  }
+}
+
+
 Exercise.prototype.addProcessor = function (processor) {
   this._processors.push(processor)
+  return this
+}
+
+
+// sugar so you don't have to worry about 'run' mode
+Exercise.prototype.addVerifyProcessor = function (processor) {
+  this._processors.push(verifyOnly(processor))
+  return this
+}
+
+
+Exercise.prototype.addSetup = function (setup) {
+  this._setups.push(setup)
+  return this
+}
+
+
+// sugar so you don't have to worry about 'run' mode
+Exercise.prototype.addVerifySetup = function (setup) {
+  this._setups.push(verifyOnly(setup))
   return this
 }
 
@@ -40,9 +72,26 @@ Exercise.prototype.init = function (id, name, dir, number) {
 
 
 // override for any pre-run and pre-verify setup
-Exercise.prototype.setup = function (callback) {
-  process.nextTick(callback)
+Exercise.prototype.setup = function (mode, callback) {
+  var setups = this._setups
+    , self   = this
+
+  if (!setups.length)
+    return process.nextTick(callback)
+
+  ;(function next (i) {
+    if (i == setups.length)
+      return process.nextTick(callback)
+
+    setups[i].call(self, mode, function (err) {
+      if (err)
+        return callback(err)
+
+      next(++i)
+    })
+  })(0)
 }
+
 
 function runVerify (mode, submission, args, callback) {
   this.submission     = submission
@@ -51,7 +100,7 @@ function runVerify (mode, submission, args, callback) {
   this.submissionArgs = Array.prototype.slice.call(args)
   this.solutionArgs   = Array.prototype.slice.call(args)
 
-  this.setup(function (err) {
+  this.setup(mode, function (err) {
     if (err)
       return callback('error', err)
 
@@ -131,7 +180,7 @@ Exercise.prototype.process = function (mode, callback) {
       if (err)
         return callback(err)
 
-      if (!pass)
+      if (pass === false)
         passed = false
 
       next(++i)
