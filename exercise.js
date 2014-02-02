@@ -1,9 +1,8 @@
 const path         = require('path')
     , fs           = require('fs')
-    , spawn        = require('child_process').spawn
+    , after        = require('after')
     , inherits     = require('util').inherits
     , EventEmitter = require('events').EventEmitter
-    , after        = require('after')
 
 
 function Exercise () {
@@ -14,6 +13,7 @@ function Exercise () {
 
   this._setups     = []
   this._processors = []
+  this._cleanups   = []
 }
 
 
@@ -31,30 +31,20 @@ function verifyOnly (fn) {
 }
 
 
-Exercise.prototype.addProcessor = function (processor) {
-  this._processors.push(processor)
-  return this
-}
+'Processor Setup Cleanup'.split(' ').forEach(function (t) {
+
+  Exercise.prototype['add' + t] = function (fn) {
+    this['_' + t.toLowerCase() + 's'].push(fn)
+    return this
+  }
 
 
-// sugar so you don't have to worry about 'run' mode
-Exercise.prototype.addVerifyProcessor = function (processor) {
-  this._processors.push(verifyOnly(processor))
-  return this
-}
+  Exercise.prototype['addVerify' + t] = function (fn) {
+    this['_' + t.toLowerCase() + 's'].push(verifyOnly(fn))
+    return this
+  }
 
-
-Exercise.prototype.addSetup = function (setup) {
-  this._setups.push(setup)
-  return this
-}
-
-
-// sugar so you don't have to worry about 'run' mode
-Exercise.prototype.addVerifySetup = function (setup) {
-  this._setups.push(verifyOnly(setup))
-  return this
-}
+})
 
 
 Exercise.prototype.init = function (id, name, dir, number) {
@@ -62,16 +52,9 @@ Exercise.prototype.init = function (id, name, dir, number) {
   this.name   = name
   this.dir    = dir
   this.number = number
-  // edit/override if you want to alter the child process environment
-  this.env    = Array.prototype.slice.call(process.env)
-
-  // set this.solution if your solution is elsewhere
-  if (!this.solution)
-    this.solution = path.join(dir, './solution/index.js')
 }
 
 
-// override for any pre-run and pre-verify setup
 Exercise.prototype.setup = function (mode, callback) {
   var setups = this._setups
     , self   = this
@@ -93,81 +76,32 @@ Exercise.prototype.setup = function (mode, callback) {
 }
 
 
-function runVerify (mode, submission, args, callback) {
-  this.submission     = submission
-  // default args, override if you want to pass special args to the
-  // solution and/or submission, override this.setup to do this
-  this.submissionArgs = Array.prototype.slice.call(args)
-  this.solutionArgs   = Array.prototype.slice.call(args)
+function runVerify (mode, args, callback) {
+  this.args = Array.prototype.slice.call(args)
 
   this.setup(mode, function (err) {
     if (err)
       return callback('error', err)
 
-    this.execute(mode, callback)
+    this.process(mode, callback)
   }.bind(this))
 }
 
 
-Exercise.prototype.run = function (submission, args, callback) {
-  runVerify.call(this, 'run', submission, args, callback)
+Exercise.prototype.run = function (args, callback) {
+  runVerify.call(this, 'run', args, callback)
 }
 
 
-Exercise.prototype.verify = function (submission, args, callback) {
-  runVerify.call(this, 'verify', submission, args, callback)
+Exercise.prototype.verify = function (args, callback) {
+  runVerify.call(this, 'verify', args, callback)
 }
 
 
-// override if you want to mess with stdout
-Exercise.prototype.getStdout = function (type, child) {
-  // type == 'submission' || 'solution'
-  return child.stdout
-}
-
-
-Exercise.prototype.execute = function (mode, callback) {
-  var ended = after(mode == 'verify' ? 2 : 1, this.kill.bind(this))
-
-  this.submissionChild  = spawn(process.execPath, [ this.submission ].concat(this.submissionArgs), this.env)
-  this.submissionStdout = this.getStdout('submission', this.submissionChild)
-
-  this.submissionStdout.on('end', ended)
-
-  if (mode == 'verify') {
-    this.solutionChild  = spawn(process.execPath, [ this.solution ].concat(this.solutionArgs), this.env)
-    this.solutionStdout = this.getStdout('solution', this.solutionChild)
-
-    this.solutionStdout.on('end', ended)
-  }
-
-  this.process(mode, callback)
-}
-
-
-Exercise.prototype.kill = function () {
-  ;[ this.submissionChild, this.solutionChild ].forEach(function (child) {
-    if (child && typeof child.kill == 'function')
-      child.kill()
-  })
-
-  setTimeout(function () {
-    this.emit('end')
-  }.bind(this), 10)
-}
-
-
-// override this to do something with stdout of both submission and solution
 Exercise.prototype.process = function (mode, callback) {
   var processors = this._processors
     , passed     = true
     , self       = this
-
-  if (!processors.length) {
-    this.submissionStdout.pipe(process.stdout)
-    this.submissionChild.stderr.pipe(process.stderr)
-    return callback(null, true) // automatic pass!
-  }
 
   ;(function next (i) {
     if (i == processors.length) {
@@ -219,23 +153,31 @@ Exercise.prototype.getExerciseText = function (callback) {
 
 
 Exercise.prototype.getSolutionFiles = function (callback) {
-  var solutionDir = path.join(this.dir, './solution/')
-
-  fs.readdir(solutionDir, function (err, list) {
-    if (err)
-      return callback(err)
-
-    list = list
-      .filter(function (f) { return (/\.js$/).test(f) })
-      .map(function (f) { return path.join(solutionDir, f)})
-
-    callback(null, list)
+  process.nextTick(function () {
+    callback(null, [])
   })
 }
 
 
-// override this if you have clean-up to perform
-Exercise.prototype.end = function () {}
+Exercise.prototype.end = function (mode, pass, callback) {
+  var cleanups = this._cleanups
+    , self     = this
+
+  if (!cleanups.length)
+    return process.nextTick(callback)
+
+  ;(function next (i) {
+    if (i == cleanups.length)
+      return process.nextTick(callback)
+
+    cleanups[i].call(self, mode, function (err) {
+      if (err)
+        return callback(err)
+
+      next(++i)
+    })
+  })(0)
+}
 
 
 module.exports = Exercise

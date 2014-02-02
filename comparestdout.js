@@ -1,6 +1,4 @@
-const Exercise = require('./exercise')
-    , inherits = require('util').inherits
-    , chalk    = require('chalk')
+const chalk    = require('chalk')
     , split    = require('split')
     , tuple    = require('tuple-stream')
     , through2 = require('through2')
