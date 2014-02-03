@@ -90,10 +90,10 @@ function processor (mode, callback) {
 
   output = through2.obj(transform.bind(this), flush.bind(this))
 
-  if (!this.longCompareOutput) {
+  if (!this.longCompareOutput)
     output.push(chalk.bold.yellow(center('ACTUAL', 45) + center('EXPECTED', 45) + '\n'))
-    output.push(chalk.bold.yellow(repeat('\u2500', 90)) + '\n\n')
-  }
+
+  output.push(chalk.bold.yellow(repeat('\u2500', 90)) + '\n\n')
 
   tuple(this.submissionStdout.pipe(split()), this.solutionStdout.pipe(split()))
     .pipe(output)
