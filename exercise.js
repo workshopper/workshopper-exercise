@@ -11,6 +11,7 @@ function Exercise () {
 
   EventEmitter.call(this)
 
+  this._prepares   = []
   this._setups     = []
   this._processors = []
   this._cleanups   = []
@@ -31,7 +32,7 @@ function verifyOnly (fn) {
 }
 
 
-'Processor Setup Cleanup'.split(' ').forEach(function (t) {
+'Prepare Setup Processor Cleanup'.split(' ').forEach(function (t) {
 
   Exercise.prototype['add' + t] = function (fn) {
     this['_' + t.toLowerCase() + 's'].push(fn)
@@ -52,6 +53,27 @@ Exercise.prototype.init = function (id, name, dir, number) {
   this.name   = name
   this.dir    = dir
   this.number = number
+}
+
+
+Exercise.prototype.prepare = function (callback) {
+  var prepares = this._prepares
+    , self   = this
+
+  if (!prepares.length)
+    return process.nextTick(callback)
+
+  ;(function next (i) {
+    if (i == prepares.length)
+      return process.nextTick(callback)
+
+    prepares[i].call(self, function (err) {
+      if (err)
+        return callback(err)
+
+      next(++i)
+    })
+  })(0)
 }
 
 

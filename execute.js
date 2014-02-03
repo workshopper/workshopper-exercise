@@ -2,6 +2,7 @@ const spawn = require('child_process').spawn
     , path  = require('path')
     , fs    = require('fs')
     , after = require('after')
+    , xtend = require('xtend')
 
 
 function execute (exercise) {
@@ -36,21 +37,21 @@ function execute (exercise) {
 
 
 function setup (mode, callback) {
-  this.submission = this.args.shift() // first arg obviously
+  this.submission = this.args[0] // first arg obviously
 
   // default args, override if you want to pass special args to the
   // solution and/or submission, override this.setup to do this
-  this.submissionArgs = Array.prototype.slice.call(this.args)
-  this.solutionArgs   = Array.prototype.slice.call(this.args)
+  this.submissionArgs = Array.prototype.slice.call(1, this.args)
+  this.solutionArgs   = Array.prototype.slice.call(1, this.args)
 
   // edit/override if you want to alter the child process environment
-  this.env            = Array.prototype.slice.call(process.env)
+  this.env            = xtend(process.env)
 
   // set this.solution if your solution is elsewhere
   if (!this.solution)
     this.solution = path.join(this.dir, './solution/index.js')
 
-  callback()
+  process.nextTick(callback)
 }
 
 
@@ -81,7 +82,7 @@ function processor (mode, callback) {
     this.solutionStdout.on('end', ended)
   }
 
-  callback()
+  process.nextTick(callback)
 }
 
 
