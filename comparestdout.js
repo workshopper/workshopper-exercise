@@ -38,7 +38,7 @@ function processor (mode, callback) {
   if (mode == 'run' || !this.solutionChild) // no compare needed
     return this.submissionStdout.pipe(process.stdout)
 
-  console.log(chalk.yellow.bold('\nYour submission results compared to the expected:\n'))
+  console.log('\nYour submission results compared to the expected:\n')
 
   var equal = true
     , line  = 1
@@ -57,22 +57,22 @@ function processor (mode, callback) {
     if (this.longCompareOutput) {
 
       output =
-          chalk.yellow.bold(lineStr + '  ACTUAL:  ')
+          chalk.yellow(lineStr + '  ACTUAL:  ')
         + _colourfn(actual)
         + '\n'
-        + chalk.yellow.bold(lineStr + 'EXPECTED:  ')
+        + chalk.yellow(lineStr + 'EXPECTED:  ')
         + _colourfn(expected)
         + '\n\n'
 
     } else {
 
       output =
-          _colourfn(lineStr)
-        + _colourfn(wrap(actual, 40))
-        + _colourfn('\u2502')
+          //_colourfn(lineStr)
+          '   '
+        + _colourfn(wrap(actual, 34))
         + _colourfn(chalk.bold(eq ? ' == ' : ' != '))
-        + _colourfn('\u2502   ')
-        + _colourfn(expected)
+        + '   '
+        + _colourfn(wrap(expected, 34))
         + '\n'
 
     }
@@ -81,7 +81,7 @@ function processor (mode, callback) {
   }
 
   function flush (_callback) {
-    output.push('\n')
+    output.push('\n' + chalk.yellow(repeat('\u2500', 80)) + '\n')
 
     _callback(null)
 
@@ -91,9 +91,9 @@ function processor (mode, callback) {
   output = through2.obj(transform.bind(this), flush.bind(this))
 
   if (!this.longCompareOutput)
-    output.push(chalk.bold.yellow(center('ACTUAL', 45) + center('EXPECTED', 45) + '\n'))
+    output.push(chalk.yellow(center('ACTUAL', 40) + center('EXPECTED', 40) + '\n'))
 
-  output.push(chalk.bold.yellow(repeat('\u2500', 90)) + '\n\n')
+  output.push(chalk.yellow(repeat('\u2500', 80)) + '\n\n')
 
   tuple(this.submissionStdout.pipe(split()), this.solutionStdout.pipe(split()))
     .pipe(output)
