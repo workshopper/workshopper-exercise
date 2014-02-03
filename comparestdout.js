@@ -54,7 +54,7 @@ function processor (mode, callback) {
 
     equal = equal && eq
 
-    if (this.long) {
+    if (this.longCompareOutput) {
 
       output =
           chalk.yellow.bold(lineStr + '  ACTUAL:  ')
@@ -90,7 +90,7 @@ function processor (mode, callback) {
 
   output = through2.obj(transform.bind(this), flush.bind(this))
 
-  if (!this.long) {
+  if (!this.longCompareOutput) {
     output.push(chalk.bold.yellow(center('ACTUAL', 45) + center('EXPECTED', 45) + '\n'))
     output.push(chalk.bold.yellow(repeat('\u2500', 90)) + '\n\n')
   }
