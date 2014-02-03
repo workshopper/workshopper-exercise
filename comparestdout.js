@@ -81,7 +81,9 @@ function processor (mode, callback) {
   }
 
   function flush (_callback) {
-    output.push('\n' + chalk.yellow(repeat('\u2500', 80)) + '\n')
+    output.push('\n' + chalk.yellow(repeat('\u2500', 80)) + '\n\n')
+
+    this.emit(equal ? 'pass' : 'fail', 'Submission output matches expected output')
 
     _callback(null)
 
