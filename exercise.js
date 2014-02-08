@@ -17,9 +17,15 @@ function Exercise () {
   this._cleanups   = []
 }
 
-
 inherits(Exercise, EventEmitter)
 
+// exercise plugin convenience
+// plugin arg is just a function that takes an exercise
+// variable args to `use` are forwarded to plugin
+Exercise.prototype.use = function use(plugin) {
+  var args = [].slice.call(arguments, 1)
+  return plugin.apply(this, [this].concat(args))
+}
 
 // for addVerifyProcessor and addVerifySetup
 function verifyOnly (fn) {
