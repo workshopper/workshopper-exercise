@@ -3,7 +3,7 @@ const path   = require('path')
 
 function requireExercise(exercise) {
   exercise.addSetup(requireModules)
-  exercise.addRunProcessor(logResults)
+  exercise.addProcessor(logResults)
   exercise.addVerifyProcessor(verifySubmission)
   return exercise
 }
@@ -27,7 +27,8 @@ function requireModules(mode, callback) {
   process.nextTick(callback)
 }
 
-function logResults(callback) {
+function logResults(mode, callback) {
+  if (mode !== 'run') return process.nextTick(callback)
   this.submissionArgs.forEach(function(input) {
     console.log(this.submissionModule(input))
   }, this)
@@ -36,11 +37,24 @@ function logResults(callback) {
 }
 
 function verifySubmission(callback) {
+  var success = true
   this.submissionArgs.forEach(function(input, index) {
-    assert.equal(this.submissionModule(this.submissionArgs[index]), this.solutionModule(this.solutionArgs[index]))
+    var actual = this.submissionModule(this.submissionArgs[index])
+    var expected = this.solutionModule(this.solutionArgs[index])
+    var equal = deepEqual(actual, expected)
+    this.emit(equal ? 'pass' : 'fail', actual + ' == ' + expected)
+    success = success && equal
   }, this)
+  callback(null, success)
+}
 
-  process.nextTick(callback)
+function deepEqual(a, b){
+  try {
+    assert.deepEqual(a, b)
+    return true
+  } catch(e) {
+    return false
+  }
 }
 
 module.exports = requireExercise
