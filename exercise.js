@@ -27,7 +27,7 @@ inherits(Exercise, EventEmitter)
 // variable args to `use` are forwarded to plugin
 Exercise.prototype.use = function use(plugin) {
   var args = [].slice.call(arguments, 1)
-  return plugin.apply(this, [this].concat(args))
+  return plugin.apply(this, [ this ].concat(args))
 }
 
 // for addVerifyProcessor and addVerifySetup
