@@ -31,6 +31,16 @@ function verifyOnly (fn) {
   }
 }
 
+// for addRunProcessor and addRunSetup
+function runOnly (fn) {
+  return function (mode, callback) {
+    if (mode == 'verify')
+      return callback(null, true)
+
+    fn.call(this, callback)
+  }
+}
+
 
 'Prepare Setup Processor Cleanup'.split(' ').forEach(function (t) {
 
@@ -39,6 +49,10 @@ function verifyOnly (fn) {
     return this
   }
 
+  Exercise.prototype['addRun' + t] = function (fn) {
+    this['_' + t.toLowerCase() + 's'].push(runOnly(fn))
+    return this
+  }
 
   Exercise.prototype['addVerify' + t] = function (fn) {
     this['_' + t.toLowerCase() + 's'].push(verifyOnly(fn))
