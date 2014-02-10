@@ -27,7 +27,7 @@ function verifyOnly (fn) {
     if (mode == 'run')
       return callback(null, true)
 
-    fn.call(this, callback)
+    fn.apply(this, Array.prototype.slice.call(arguments, 1))
   }
 }
 
@@ -62,11 +62,12 @@ function runOnly (fn) {
 })
 
 
-Exercise.prototype.init = function (id, name, dir, number) {
-  this.id     = id
-  this.name   = name
-  this.dir    = dir
-  this.number = number
+Exercise.prototype.init = function (workshopper, id, name, dir, number) {
+  this.workshopper = workshopper
+  this.id          = id
+  this.name        = name
+  this.dir         = dir
+  this.number      = number
 }
 
 
@@ -117,7 +118,7 @@ function runVerify (mode, args, callback) {
 
   this.setup(mode, function (err) {
     if (err)
-      return callback('error', err)
+      return callback(err)
 
     this.process(mode, callback)
   }.bind(this))
@@ -206,7 +207,7 @@ Exercise.prototype.end = function (mode, pass, callback) {
     if (i == cleanups.length)
       return process.nextTick(callback)
 
-    cleanups[i].call(self, mode, function (err) {
+    cleanups[i].call(self, mode, pass, function (err) {
       if (err)
         return callback(err)
 
