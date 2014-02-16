@@ -73,16 +73,20 @@ function processor (mode, callback) {
   this.submissionChild  = spawn(process.execPath, [ this.submission ].concat(this.submissionArgs), this.env)
   this.submissionStdout = this.getStdout('submission', this.submissionChild)
 
-  this.submissionStdout.on('end', ended)
+  setImmediate(function () { // give other processors a chance to overwrite stdout
+    this.submissionStdout.on('end', ended)
+  }.bind(this))
 
   if (mode == 'verify') {
     this.solutionChild  = spawn(process.execPath, [ this.solution ].concat(this.solutionArgs), this.env)
     this.solutionStdout = this.getStdout('solution', this.solutionChild)
 
-    this.solutionStdout.on('end', ended)
+    setImmediate(function () { // give other processors a chance to overwrite stdout
+      this.solutionStdout.on('end', ended)
+    }.bind(this))
   }
 
-  setImmediate(function () {
+  process.nextTick(function () {
     callback(null, true)
   })
 }

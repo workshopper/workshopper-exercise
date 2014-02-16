@@ -43,13 +43,21 @@ function processor (mode, callback) {
     })
   }
 
-  console.log('\nYour submission results compared to the expected:\n')
-
   var equal = true
     , line  = 1
-    , output
+    , outputStream
 
   function transform (chunk, enc, callback) {
+
+    if (line == 1) {
+      outputStream.push('\nYour submission results compared to the expected:\n\n')
+
+      if (!this.longCompareOutput)
+        outputStream.push(chalk.yellow(center('ACTUAL', 40) + center('EXPECTED', 40) + '\n'))
+
+      outputStream.push(chalk.yellow(repeat('\u2500', 80)) + '\n\n')
+    }
+
     var eq        = chunk[0] === chunk[1]
       , lineStr   = wrap(String(line++ + '.'), 3)
       , _colourfn = colourfn(eq ? 'PASS' : 'FAIL')
@@ -86,24 +94,19 @@ function processor (mode, callback) {
   }
 
   function flush (_callback) {
-    output.push('\n' + chalk.yellow(repeat('\u2500', 80)) + '\n\n')
+    outputStream.push('\n' + chalk.yellow(repeat('\u2500', 80)) + '\n\n')
 
-    this.emit(equal ? 'pass' : 'fail', 'Submission output matches expected output')
+    this.emit(equal ? 'pass' : 'fail', 'Submission results match expected')
 
     _callback(null)
 
     callback(null, equal) // process() callback
   }
 
-  output = through2.obj(transform.bind(this), flush.bind(this))
-
-  if (!this.longCompareOutput)
-    output.push(chalk.yellow(center('ACTUAL', 40) + center('EXPECTED', 40) + '\n'))
-
-  output.push(chalk.yellow(repeat('\u2500', 80)) + '\n\n')
+  outputStream = through2.obj(transform.bind(this), flush.bind(this))
 
   tuple(this.submissionStdout.pipe(split()), this.solutionStdout.pipe(split()))
-    .pipe(output)
+    .pipe(outputStream)
     .pipe(process.stdout)
 }
 
