@@ -82,7 +82,9 @@ function processor (mode, callback) {
     this.solutionStdout.on('end', ended)
   }
 
-  process.nextTick(callback)
+  setImmediate(function () {
+    callback(null, true)
+  })
 }
 
 

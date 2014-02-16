@@ -35,8 +35,13 @@ function wrap (s_, n) {
 function processor (mode, callback) {
   this.submissionChild.stderr.pipe(process.stderr)
 
-  if (mode == 'run' || !this.solutionChild) // no compare needed
-    return this.submissionStdout.pipe(process.stdout)
+  if (mode == 'run' || !this.solutionChild) {
+    // no compare needed
+    this.submissionStdout.pipe(process.stdout)
+    return this.on('executeEnd', function () {
+      callback(null, true)
+    })
+  }
 
   console.log('\nYour submission results compared to the expected:\n')
 
@@ -77,7 +82,7 @@ function processor (mode, callback) {
 
     }
 
-      callback(null, output)
+    callback(null, output)
   }
 
   function flush (_callback) {
