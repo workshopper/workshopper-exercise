@@ -49,7 +49,7 @@ function setup (mode, callback) {
 
   // set this.solution if your solution is elsewhere
   if (!this.solution)
-    this.solution = path.join(this.dir, './solution/index.js')
+    this.solution = path.join(this.dir, './solution/solution.js')
 
   process.nextTick(callback)
 }
