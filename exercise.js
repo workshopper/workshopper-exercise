@@ -23,9 +23,10 @@ inherits(Exercise, EventEmitter)
 
 // for addVerifyProcessor and addVerifySetup
 function verifyOnly (fn) {
-  return function (mode, callback) {
+  return function (mode) {
     if (mode == 'run')
-      return callback(null, true)
+      // there's either 2 or 3 args, with callback last
+      return arguments[arguments.length - 1](null, true)
 
     fn.apply(this, Array.prototype.slice.call(arguments, 1))
   }
@@ -33,11 +34,12 @@ function verifyOnly (fn) {
 
 // for addRunProcessor and addRunSetup
 function runOnly (fn) {
-  return function (mode, callback) {
+  return function (mode) {
     if (mode == 'verify')
-      return callback(null, true)
+      // there's either 2 or 3 args, with callback last
+      return arguments[arguments.length - 1](null, true)
 
-    fn.call(this, callback)
+    fn.apply(this, Array.prototype.slice.call(arguments, 1))
   }
 }
 
