@@ -70,7 +70,7 @@ function kill () {
 function processor (mode, callback) {
   var ended = after(mode == 'verify' ? 2 : 1, kill.bind(this))
 
-  this.submissionChild  = spawn(process.execPath, [ this.submission ].concat(this.submissionArgs), this.env)
+  this.submissionChild  = spawn(process.execPath, [ this.submission ].concat(this.submissionArgs), { env: this.env } )
   this.submissionStdout = this.getStdout('submission', this.submissionChild)
 
   setImmediate(function () { // give other processors a chance to overwrite stdout
@@ -78,7 +78,7 @@ function processor (mode, callback) {
   }.bind(this))
 
   if (mode == 'verify') {
-    this.solutionChild  = spawn(process.execPath, [ this.solution ].concat(this.solutionArgs), this.env)
+    this.solutionChild  = spawn(process.execPath, [ this.solution ].concat(this.solutionArgs), { env: this.env } )
     this.solutionStdout = this.getStdout('solution', this.solutionChild)
 
     setImmediate(function () { // give other processors a chance to overwrite stdout
