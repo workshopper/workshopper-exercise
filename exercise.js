@@ -15,6 +15,8 @@ function Exercise () {
   this._setups     = []
   this._processors = []
   this._cleanups   = []
+
+  this.passed      = true // explicitly fail
 }
 
 
@@ -139,13 +141,12 @@ Exercise.prototype.verify = function (args, callback) {
 
 Exercise.prototype.process = function (mode, callback) {
   var processors = this._processors
-    , passed     = true
     , self       = this
 
   ;(function next (i) {
     if (i == processors.length) {
       return process.nextTick(function () {
-        callback(null, passed)
+        callback(null, self.passed)
       })
     }
 
@@ -154,7 +155,7 @@ Exercise.prototype.process = function (mode, callback) {
         return callback(err)
 
       if (pass === false)
-        passed = false
+        self.passed = false
 
       next(++i)
     })
