@@ -146,6 +146,7 @@ Exercise.prototype.process = function (mode, callback) {
   ;(function next (i) {
     if (i == processors.length) {
       return process.nextTick(function () {
+        self.emit(self.passed ? 'pass' : 'fail')
         callback(null, self.passed)
       })
     }
