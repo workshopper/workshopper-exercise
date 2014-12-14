@@ -6,16 +6,16 @@ function setup (mode, callback) {
 
   fs.stat(submission, function (err, stat) {
     if ((err && err.code == 'ENOENT') || !stat)
-      return callback(new Error('No such file: ' + submission))
+      return callback(new Error(this.__('error.exercise.submission_no_file', {submission: submission})))
 
     if (err)
       return callback(err)
 
     if (!stat.isFile())
-      return callback(new Error('Not a regular file: ' + submission))
+      return callback(new Error(this.__('error.exercise.submission_not_regular', {submission: submission})))
 
     callback()
-  })
+  }.bind(this))
 }
 
 

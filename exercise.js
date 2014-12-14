@@ -68,6 +68,9 @@ function runOnly (fn) {
 
 Exercise.prototype.init = function (workshopper, id, name, dir, number) {
   this.workshopper = workshopper
+  this.lang        = workshopper.lang
+  this.__          = workshopper.__
+  this.__n         = workshopper.__n
   this.id          = id
   this.name        = name
   this.dir         = dir
@@ -170,7 +173,7 @@ Exercise.prototype.getExerciseText = function (callback) {
           return callback(err)
 
         if (!file)
-          return callback(new Error('Could not find problem.txt or problem.md for [' + this.name + ']', err))
+          return callback(new Error(this.__('error.exercise.missing_problem', {name: this.__('exercise.' + this.name), err: err})))
 
         fs.readFile(file, 'utf8', function (err, text) {
           if (err)
@@ -178,7 +181,7 @@ Exercise.prototype.getExerciseText = function (callback) {
 
           callback(null, path.extname(file).replace(/^\./, ''), text)
         })
-      })
+      }.bind(this))
 
   'txt md'.split(' ').forEach(function (ext) {
     var _file = path.join(this.dir, 'problem.' + ext)
