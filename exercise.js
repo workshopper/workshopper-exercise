@@ -1,6 +1,5 @@
 const path         = require('path')
     , fs           = require('fs')
-    , after        = require('after')
     , inherits     = require('util').inherits
     , EventEmitter = require('events').EventEmitter
 
@@ -166,30 +165,53 @@ Exercise.prototype.process = function (mode, callback) {
 }
 
 
-Exercise.prototype.getExerciseText = function (callback) {
-  var file
-    , done = after(2, function (err) {
+Exercise.prototype.getProblemFile = function (callback) {
+  var uncheckedFiles = [
+        'problem.' + this.lang + '.md'
+      , 'problem.' + this.lang + '.txt'
+      , 'problem.md'
+      , 'problem.txt'
+      , 'problem.' + this.defaultLang + '.md'
+      , 'problem.' + this.defaultLang + '.txt'
+    ]
+    , scope = this
+  function checkNextFile() {
+    var file = uncheckedFiles.shift()
+    if (!file)
+      return callback(null)
+
+    file = path.resolve(scope.dir, file)
+    fs.exists(file, function (exists) {
+      if (!exists)
+        return checkNextFile()
+
+      fs.stat(file, function (err, stat) {
         if (err)
           return callback(err)
 
-        if (!file)
-          return callback(new Error(this.__('error.exercise.missing_problem', {name: this.__('exercise.' + this.name), err: err})))
+        if (stat && stat.isFile())
+          return callback(null, file)
 
-        fs.readFile(file, 'utf8', function (err, text) {
-          if (err)
-            return callback(err)
+        checkNextFile()
+      })
+    })
+  }
+  checkNextFile();
+}
 
-          callback(null, path.extname(file).replace(/^\./, ''), text)
-        })
-      }.bind(this))
+Exercise.prototype.getExerciseText = function (callback) {
+  this.getProblemFile(function (err, file) {
+    if (err)
+      return callback(err)
 
-  'txt md'.split(' ').forEach(function (ext) {
-    var _file = path.join(this.dir, 'problem.' + ext)
-    fs.stat(_file, function (err, stat) {
-      if (stat && stat.isFile() && (!file || file == 'problem.txt')) // prefer .md
-        file = _file
+    if (!file)
+      return callback(new Error(this.__('error.exercise.missing_problem', {name: this.__('exercise.' + this.name), err: err})))
 
-      done()
+    fs.readFile(file, 'utf8', function (err, text) {
+      if (err)
+        return callback(err)
+
+      callback(null, path.extname(file).replace(/^\./, ''), text)
     })
   }.bind(this))
 }
