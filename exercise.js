@@ -2,6 +2,7 @@ const path         = require('path')
     , fs           = require('fs')
     , inherits     = require('util').inherits
     , EventEmitter = require('events').EventEmitter
+    , i18n         = require('i18n-core')
 
 
 function Exercise () {
@@ -67,8 +68,22 @@ function runOnly (fn) {
 
 Exercise.prototype.init = function (workshopper, id, name, dir, number) {
   this.workshopper = workshopper
-  this.lang        = workshopper.lang
-  this.i18n        = workshopper.i18n.lang("exercise." + name)
+  this.__defineGetter__('lang', function () {
+    return workshopper.lang
+  })
+  this.i18n        = i18n({
+    get: function (key) {
+      var i18n = workshopper.i18n
+        , lookup = 'exercises.' + name + '.' + key
+      return i18n.has(lookup) ? i18n.raw(lookup) : i18n.raw(key)
+    }
+  })
+  this.i18n.fallback = function (key) {
+    if (!key)
+      return "(???)"
+
+    return "?" + key + "?"
+  }
   this.__          = this.i18n.__
   this.__n         = this.i18n.__n
   this.id          = id

@@ -50,10 +50,10 @@ function processor (mode, callback) {
   function transform (chunk, enc, callback) {
 
     if (line == 1) {
-      outputStream.push('\nYour submission results compared to the expected:\n\n')
+      outputStream.push("\n" + this.__('compare.title') + "\n\n")
 
       if (!this.longCompareOutput)
-        outputStream.push(chalk.yellow(center('ACTUAL', 40) + center('EXPECTED', 40) + '\n'))
+        outputStream.push(chalk.yellow(center(this.__('compare.actual'), 40) + center(this.__('compare.expected'), 40) + '\n'))
 
       outputStream.push(chalk.yellow(repeat('\u2500', 80)) + '\n\n')
     }
@@ -96,7 +96,7 @@ function processor (mode, callback) {
   function flush (_callback) {
     outputStream.push('\n' + chalk.yellow(repeat('\u2500', 80)) + '\n\n')
 
-    this.emit(equal ? 'pass' : 'fail', 'Submission results match expected')
+    this.emit(equal ? 'pass' : 'fail', this.__(equal ? 'compare.pass' : 'compare.fail'))
 
     _callback(null)
 
