@@ -68,8 +68,9 @@ function runOnly (fn) {
 Exercise.prototype.init = function (workshopper, id, name, dir, number) {
   this.workshopper = workshopper
   this.lang        = workshopper.lang
-  this.__          = workshopper.__
-  this.__n         = workshopper.__n
+  this.i18n        = workshopper.i18n.lang("exercise." + name)
+  this.__          = this.i18n.__
+  this.__n         = this.i18n.__n
   this.id          = id
   this.name        = name
   this.dir         = dir
