@@ -32,7 +32,7 @@ function execute (exercise, opts) {
 
         callback(null, list)
       })
-    })
+    }.bind(this))
   }
 
   return exercise
