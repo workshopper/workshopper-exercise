@@ -75,14 +75,14 @@ Exercise.prototype.init = function (workshopper, id, name, dir, number) {
     get: function (key) {
       var i18n = workshopper.i18n
         , lookup = 'exercises.' + name + '.' + key
-      return i18n.has(lookup) ? i18n.raw(lookup) : i18n.raw(key)
+      return i18n.has(lookup) ? i18n.raw(lookup) : i18n.raw('common.exercise.' + key)
     }
   })
   this.i18n.fallback = function (key) {
     if (!key)
-      return "(???)"
+      return '(???)'
 
-    return "?" + key + "?"
+    return '?exercises.' + name + '.' + key + ' || common.exercise.' + key + '?'
   }
   this.__          = this.i18n.__
   this.__n         = this.i18n.__n
