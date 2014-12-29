@@ -70,10 +70,10 @@ function processor (mode, callback) {
     if (this.longCompareOutput) {
 
       output =
-          chalk.yellow(lineStr + '  ACTUAL:  ')
+          chalk.yellow(lineStr + this.__('compare.actual_long'))
         + _colourfn(actual)
         + '\n'
-        + chalk.yellow(lineStr + 'EXPECTED:  ')
+        + chalk.yellow(lineStr + this.__('compare.expected_long'))
         + _colourfn(expected)
         + '\n\n'
 

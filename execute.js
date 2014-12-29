@@ -18,9 +18,9 @@ function execute (exercise, opts) {
   }
 
   exercise.getSolutionFiles = function (callback) {
-    var translated = './solution_' + this.i18n.lang
+    var translated = path.join(this.dir, './solution_' + this.lang)
     fs.exists(translated, function (exists) {
-      var solutionDir = path.join(this.dir, exists ? translated : './solution')
+      var solutionDir = exists ? translated : path.join(this.dir, './solution')
 
       fs.readdir(solutionDir, function (err, list) {
         if (err)
