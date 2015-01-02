@@ -3,6 +3,7 @@ const path         = require('path')
     , inherits     = require('util').inherits
     , EventEmitter = require('events').EventEmitter
     , i18n         = require('i18n-core')
+    , i18nFs       = require('i18n-core/lookup/fs')(path.join(__dirname, 'i18n'))
 
 
 function Exercise () {
@@ -77,8 +78,10 @@ Exercise.prototype.init = function (workshopper, id, name, dir, number) {
         , lookup = 'exercises.' + name + '.' + key
         , fallback = 'common.exercise.' + key
       return i18n.has(lookup) ? i18n.raw(lookup) :
-             i18n.has(fallback) ? i18n.raw(fallback) :
-             i18n.raw(key)
+             i18nFs.get(workshopper.lang + '.' + key) || (
+               i18n.has(fallback) ? i18n.raw(fallback) :
+               i18n.raw(key)
+             )
     }
   })
   this.i18n.fallback = function (key) {
@@ -224,7 +227,7 @@ Exercise.prototype.getExerciseText = function (callback) {
       return callback(err)
 
     if (!file)
-      return callback(new Error(this.__('error.exercise.missing_problem', {name: this.__('exercise.' + this.name), err: err})))
+      return callback(new Error(this.__('error.missing_problem', {name: this.__('exercise.' + this.name), err: err})))
 
     fs.readFile(file, 'utf8', function (err, text) {
       if (err)
