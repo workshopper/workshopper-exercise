@@ -54,8 +54,9 @@ function execute (exercise, opts) {
       this.solution = fs.existsSync(localisedSolutionPath) ? localisedSolutionPath : path.join(this.dir, './solution/solution.js')
     }
       
-    this.solutionCommand   = [ this.solution ].concat(this.solutionArgs)
-    this.submissionCommand = [ this.submission ].concat(this.submissionArgs)
+    // Temporary removed because it breaks learnyounode
+    // this.solutionCommand   = [ this.solution ].concat(this.solutionArgs)
+    // this.submissionCommand = [ this.submission ].concat(this.submissionArgs)
 
     process.nextTick(callback)
   }
