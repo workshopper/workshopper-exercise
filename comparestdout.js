@@ -2,6 +2,7 @@ const chalk    = require('chalk')
     , split    = require('split')
     , tuple    = require('tuple-stream')
     , through2 = require('through2')
+    , vw       = require('visualwidth')
 
 
 function comparestdout (exercise) {
@@ -20,15 +21,15 @@ function repeat (ch, sz) {
 
 
 function center (s, sz) {
-  var sps = (sz - s.length) / 2
-    , sp  = repeat(' ', Math.floor(sps))
-  return sp + s + sp + (sp.length != sp ? ' ' : '')
+  var sps = Math.floor((sz - vw.width(s, true)) / 2)
+    , sp  = repeat(' ', sps)
+  return sp + s + sp + (sp.length != sps ? ' ' : '')
 }
 
 
 function wrap (s_, n) {
   var s = String(s_)
-  return s + repeat(' ', Math.max(0, n + 1 - s.length))
+  return s + repeat(' ', Math.max(0, n + 1 - vw.width(s, true)))
 }
 
 
@@ -70,10 +71,10 @@ function processor (mode, callback) {
     if (this.longCompareOutput) {
 
       output =
-          chalk.yellow(lineStr + this.__('compare.actual_long'))
+          chalk.yellow(wrap(lineStr + this.__('compare.actual')   + ":", 14))
         + _colourfn(actual)
         + '\n'
-        + chalk.yellow(lineStr + this.__('compare.expected_long'))
+        + chalk.yellow(wrap(lineStr + this.__('compare.expected') + ":", 14))
         + _colourfn(expected)
         + '\n\n'
 

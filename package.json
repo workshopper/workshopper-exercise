@@ -16,6 +16,7 @@
     "split": "~0.3.0",
     "through2": "~0.4.1",
     "tuple-stream": "0.0.2",
+    "visualwidth": "~0.0.1",
     "xtend": "~2.1.2"
   }
 }
