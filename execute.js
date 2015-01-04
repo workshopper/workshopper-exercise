@@ -53,10 +53,6 @@ function execute (exercise, opts) {
       var localisedSolutionPath = path.join(this.dir, './solution_' + this.lang + '/solution.js');
       this.solution = fs.existsSync(localisedSolutionPath) ? localisedSolutionPath : path.join(this.dir, './solution/solution.js')
     }
-      
-    // Temporary removed because it breaks learnyounode
-    // this.solutionCommand   = [ this.solution ].concat(this.solutionArgs)
-    // this.submissionCommand = [ this.submission ].concat(this.submissionArgs)
 
     process.nextTick(callback)
   }
