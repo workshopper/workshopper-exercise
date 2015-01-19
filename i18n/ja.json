@@ -1,0 +1,14 @@
+{
+    "compare": {
+        "title": "あなたの回答の評価結果（想定回答との比較結果）:"
+      , "actual": "回答内容"
+      , "expected": "想定回答"
+      , "pass": "回答内容は想定回答とマッチしました"
+      , "fail": "回答内容は想定回答とマッチしませんでした！"
+    }
+  , "error": {
+        "missing_problem": "[{{{name}}}] に対する problem.txt あるいは problem.md が見つかりませんでした。 {{{err}}}"
+      , "submission_no_file": "そのようなファイルはありません: {{{submission}}}"
+      , "submission_not_regular": "ファイルの形式がレギュラーファイルではありません。: {{{submission}}}"
+    }
+}

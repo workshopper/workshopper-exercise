@@ -4,7 +4,6 @@ const spawn = require('child_process').spawn
     , after = require('after')
     , xtend = require('xtend')
 
-
 function execute (exercise, opts) {
   if (!opts) opts = {}
   
@@ -19,18 +18,21 @@ function execute (exercise, opts) {
   }
 
   exercise.getSolutionFiles = function (callback) {
-    var solutionDir = path.join(this.dir, './solution/')
+    var translated = path.join(this.dir, './solution_' + this.lang)
+    fs.exists(translated, function (exists) {
+      var solutionDir = exists ? translated : path.join(this.dir, './solution')
 
-    fs.readdir(solutionDir, function (err, list) {
-      if (err)
-        return callback(err)
+      fs.readdir(solutionDir, function (err, list) {
+        if (err)
+          return callback(err)
 
-      list = list
-        .filter(function (f) { return (/\.js$/).test(f) })
-        .map(function (f) { return path.join(solutionDir, f)})
+        list = list
+          .filter(function (f) { return (/\.js$/).test(f) })
+          .map(function (f) { return path.join(solutionDir, f)})
 
-      callback(null, list)
-    })
+        callback(null, list)
+      })
+    }.bind(this))
   }
 
   return exercise
@@ -47,11 +49,10 @@ function execute (exercise, opts) {
     this.env            = xtend(process.env)
 
     // set this.solution if your solution is elsewhere
-    if (!this.solution)
-      this.solution = path.join(this.dir, './solution/solution.js')
-      
-    this.solutionCommand   = [ this.solution ].concat(this.solutionArgs)
-    this.submissionCommand = [ this.submission ].concat(this.submissionArgs)
+    if (!this.solution) {
+      var localisedSolutionPath = path.join(this.dir, './solution_' + this.lang + '/solution.js');
+      this.solution = fs.existsSync(localisedSolutionPath) ? localisedSolutionPath : path.join(this.dir, './solution/solution.js')
+    }
 
     process.nextTick(callback)
   }

@@ -1,8 +1,9 @@
 const path         = require('path')
     , fs           = require('fs')
-    , after        = require('after')
     , inherits     = require('util').inherits
     , EventEmitter = require('events').EventEmitter
+    , i18n         = require('i18n-core')
+    , i18nFs       = require('i18n-core/lookup/fs')(path.join(__dirname, 'i18n'))
 
 
 function Exercise () {
@@ -68,6 +69,29 @@ function runOnly (fn) {
 
 Exercise.prototype.init = function (workshopper, id, name, dir, number) {
   this.workshopper = workshopper
+  this.__defineGetter__('lang', function () {
+    return workshopper.lang
+  })
+  this.i18n        = i18n({
+    get: function (key) {
+      var i18n = workshopper.i18n
+        , lookup = 'exercises.' + name + '.' + key
+        , fallback = 'common.exercise.' + key
+      return i18n.has(lookup) ? i18n.raw(lookup) :
+             i18nFs.get(workshopper.lang + '.' + key) || (
+               i18n.has(fallback) ? i18n.raw(fallback) :
+               i18n.raw(key)
+             )
+    }
+  })
+  this.i18n.fallback = function (key) {
+    if (!key)
+      return '(???)'
+
+    return '?exercises.' + name + '.' + key + ' || common.exercise.' + key + '?'
+  }
+  this.__          = this.i18n.__
+  this.__n         = this.i18n.__n
   this.id          = id
   this.name        = name
   this.dir         = dir
@@ -163,30 +187,53 @@ Exercise.prototype.process = function (mode, callback) {
 }
 
 
-Exercise.prototype.getExerciseText = function (callback) {
-  var file
-    , done = after(2, function (err) {
+Exercise.prototype.getProblemFile = function (callback) {
+  var uncheckedFiles = [
+        'problem.' + this.lang + '.md'
+      , 'problem.' + this.lang + '.txt'
+      , 'problem.md'
+      , 'problem.txt'
+      , 'problem.' + this.defaultLang + '.md'
+      , 'problem.' + this.defaultLang + '.txt'
+    ]
+    , scope = this
+  function checkNextFile() {
+    var file = uncheckedFiles.shift()
+    if (!file)
+      return callback(null)
+
+    file = path.resolve(scope.dir, file)
+    fs.exists(file, function (exists) {
+      if (!exists)
+        return checkNextFile()
+
+      fs.stat(file, function (err, stat) {
         if (err)
           return callback(err)
 
-        if (!file)
-          return callback(new Error('Could not find problem.txt or problem.md for [' + this.name + ']', err))
+        if (stat && stat.isFile())
+          return callback(null, file)
 
-        fs.readFile(file, 'utf8', function (err, text) {
-          if (err)
-            return callback(err)
-
-          callback(null, path.extname(file).replace(/^\./, ''), text)
-        })
+        checkNextFile()
       })
+    })
+  }
+  checkNextFile();
+}
 
-  'txt md'.split(' ').forEach(function (ext) {
-    var _file = path.join(this.dir, 'problem.' + ext)
-    fs.stat(_file, function (err, stat) {
-      if (stat && stat.isFile() && (!file || file == 'problem.txt')) // prefer .md
-        file = _file
+Exercise.prototype.getExerciseText = function (callback) {
+  this.getProblemFile(function (err, file) {
+    if (err)
+      return callback(err)
 
-      done()
+    if (!file)
+      return callback(new Error(this.__('error.missing_problem', {name: this.__('exercise.' + this.name), err: err})))
+
+    fs.readFile(file, 'utf8', function (err, text) {
+      if (err)
+        return callback(err)
+
+      callback(null, path.extname(file).replace(/^\./, ''), text)
     })
   }.bind(this))
 }

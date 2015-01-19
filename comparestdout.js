@@ -2,6 +2,7 @@ const chalk    = require('chalk')
     , split    = require('split')
     , tuple    = require('tuple-stream')
     , through2 = require('through2')
+    , vw       = require('visualwidth')
 
 
 function comparestdout (exercise) {
@@ -20,15 +21,15 @@ function repeat (ch, sz) {
 
 
 function center (s, sz) {
-  var sps = (sz - s.length) / 2
-    , sp  = repeat(' ', Math.floor(sps))
-  return sp + s + sp + (sp.length != sp ? ' ' : '')
+  var sps = Math.floor((sz - vw.width(s, true)) / 2)
+    , sp  = repeat(' ', sps)
+  return sp + s + sp + (sp.length != sps ? ' ' : '')
 }
 
 
 function wrap (s_, n) {
   var s = String(s_)
-  return s + repeat(' ', Math.max(0, n + 1 - s.length))
+  return s + repeat(' ', Math.max(0, n + 1 - vw.width(s, true)))
 }
 
 
@@ -50,10 +51,10 @@ function processor (mode, callback) {
   function transform (chunk, enc, callback) {
 
     if (line == 1) {
-      outputStream.push('\nYour submission results compared to the expected:\n\n')
+      outputStream.push("\n" + this.__('compare.title') + "\n\n")
 
       if (!this.longCompareOutput)
-        outputStream.push(chalk.yellow(center('ACTUAL', 40) + center('EXPECTED', 40) + '\n'))
+        outputStream.push(chalk.yellow(center(this.__('compare.actual'), 40) + center(this.__('compare.expected'), 40) + '\n'))
 
       outputStream.push(chalk.yellow(repeat('\u2500', 80)) + '\n\n')
     }
@@ -70,10 +71,10 @@ function processor (mode, callback) {
     if (this.longCompareOutput) {
 
       output =
-          chalk.yellow(lineStr + '  ACTUAL:  ')
+          chalk.yellow(wrap(lineStr + this.__('compare.actual')   + ":", 14))
         + _colourfn(actual)
         + '\n'
-        + chalk.yellow(lineStr + 'EXPECTED:  ')
+        + chalk.yellow(wrap(lineStr + this.__('compare.expected') + ":", 14))
         + _colourfn(expected)
         + '\n\n'
 
@@ -96,7 +97,7 @@ function processor (mode, callback) {
   function flush (_callback) {
     outputStream.push('\n' + chalk.yellow(repeat('\u2500', 80)) + '\n\n')
 
-    this.emit(equal ? 'pass' : 'fail', 'Submission results match expected')
+    this.emit(equal ? 'pass' : 'fail', this.__(equal ? 'compare.pass' : 'compare.fail'))
 
     _callback(null)
 
