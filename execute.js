@@ -6,7 +6,7 @@ const spawn = require('child_process').spawn
 
 function execute (exercise, opts) {
   if (!opts) opts = {}
-  
+
   exercise.addSetup(setup)
   exercise.addProcessor(processor)
 
@@ -36,7 +36,7 @@ function execute (exercise, opts) {
   }
 
   return exercise
-  
+
   function setup (mode, callback) {
     this.submission = this.args[0] // first arg obviously
 
@@ -72,11 +72,11 @@ function execute (exercise, opts) {
 
   function processor (mode, callback) {
     var ended = after(mode == 'verify' ? 2 : 1, kill.bind(this))
-    
+
     // backwards compat for workshops that use older custom setup functions
     if (!this.solutionCommand) this.solutionCommand = [ this.solution ].concat(this.solutionArgs)
     if (!this.submissionCommand) this.submissionCommand = [ this.submission ].concat(this.submissionArgs)
-    
+
     this.submissionChild  = spawn(opts.exec || process.execPath, this.submissionCommand, this.env)
     this.submissionStdout = this.getStdout('submission', this.submissionChild)
 
@@ -97,7 +97,7 @@ function execute (exercise, opts) {
       callback(null, true)
     })
   }
-  
+
 }
 
 module.exports = execute
