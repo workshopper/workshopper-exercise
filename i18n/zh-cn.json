@@ -1,14 +1,14 @@
 {
     "compare": {
-        "title": "Your submission results compared to the expected:"
-      , "actual": "ACTUAL"
-      , "expected": "EXPECTED"
-      , "pass": "Submission results match expected"
-      , "fail": "Submission results did not match expected!"
+        "title": "你提交的结果与预期结果的比较如下:"
+      , "actual": "实际结果"
+      , "expected": "预期结果"
+      , "pass": "提交的结果符合预期"
+      , "fail": "提交的结果不符合预期！"
     }
   , "error": {
-        "missing_problem": "Could not find problem.txt or problem.md for [{{{name}}}] {{{err}}}"
-      , "submission_no_file": "No such file: {{{submission}}}"
-      , "submission_not_regular": "Not a regular file: {{{submission}}}"
+        "missing_problem": "找不到针对 [{{{name}}}] 的 problem.txt 或者 problem.md： {{{err}}}"
+      , "submission_no_file": "没有这个文件： {{{submission}}}"
+      , "submission_not_regular": "不是一个合法的文件： {{{submission}}}"
     }
 }
