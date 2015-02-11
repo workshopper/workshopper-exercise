@@ -1,0 +1,14 @@
+{
+    "compare": {
+        "title": "Сравнение результатов решения c ожидаемыми результами:"
+      , "actual": "ПОЛУЧЕННЫЙ" 
+      , "expected": "ОЖИДАЕМЫЙ"
+      , "pass": "Результат совпал с ожидаемым"
+      , "fail": "Результат не совпал с ожидаемым!"
+    }
+  , "error": {
+        "missing_problem": "Не найден файл problem.txt или problem.md для [{{{name}}}] {{{err}}}"
+      , "submission_no_file": "Файл не найден: {{{submission}}}"
+      , "submission_not_regular": "Не верный формат файла: {{{submission}}}"
+    }
+}
