@@ -1,0 +1,14 @@
+{
+    "compare": {
+        "title": "Résultats de votre tentative face à ce qu’on attend :"
+      , "actual": "RÉEL"
+      , "expected": "ATTENDU"
+      , "pass": "Vos résultats correspondent à ceux attendus"
+      , "fail": "Vos résultats ne correspondent pas à ceux attendus !"
+    }
+  , "error": {
+        "missing_problem": "Impossilbe de trouver problem.txt ou problem.md pour [{{{name}}}] {{{err}}}"
+      , "submission_no_file": "Fichier introuvable : {{{submission}}}"
+      , "submission_not_regular": "Ce n’est pas un fichier simple : {{{submission}}}"
+    }
+}
