@@ -266,18 +266,5 @@ Exercise.prototype.end = function (mode, pass, callback) {
   })(0)
 }
 
-Exercise.basic = function basicExercise () {
-  var exercise      = new Exercise()
-    , filecheck     = require('./filecheck')
-    , execute       = require('./execute')
-    , comparestdout = require('./comparestdout')
-
-  exercise = filecheck(exercise)
-  exercise = execute(exercise)
-  exercise = comparestdout(exercise)
-
-  return exercise
-}
-
 
 module.exports = Exercise
