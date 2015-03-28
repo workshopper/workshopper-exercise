@@ -1,14 +1,14 @@
 {
     "compare": {
-        "title": "Your submission results compared to the expected:"
+        "title": "Su resultado propuesto comparado con lo esperado:"
       , "actual": "ACTUAL"
-      , "expected": "EXPECTED"
-      , "pass": "Submission results match expected"
-      , "fail": "Submission results did not match expected!"
+      , "expected": "ESPERADO"
+      , "pass": "El resultado concuerda con lo esperado"
+      , "fail": "El resultado NO concuerda con lo esperado!"
     }
   , "error": {
-        "missing_problem": "Could not find problem.txt or problem.md for [{{{name}}}] {{{err}}}"
-      , "submission_no_file": "No such file: {{{submission}}}"
-      , "submission_not_regular": "Not a regular file: {{{submission}}}"
+        "missing_problem": "No se pudo encontrar el archivo problem.txt o problem.md de [{{{name}}}] {{{err}}}"
+      , "submission_no_file": "No existe el archivo: {{{submission}}}"
+      , "submission_not_regular": "No es un archivo valido: {{{submission}}}"
     }
 }
