@@ -9,6 +9,6 @@
   , "error": {
         "missing_problem": "No se pudo encontrar el archivo problem.txt o problem.md de [{{{name}}}] {{{err}}}"
       , "submission_no_file": "No existe el archivo: {{{submission}}}"
-      , "submission_not_regular": "No es un archivo valido: {{{submission}}}"
+      , "submission_not_regular": "No es un archivo válido: {{{submission}}}"
     }
 }
