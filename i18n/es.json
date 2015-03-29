@@ -4,7 +4,7 @@
       , "actual": "ACTUAL"
       , "expected": "ESPERADO"
       , "pass": "El resultado concuerda con lo esperado"
-      , "fail": "El resultado NO concuerda con lo esperado!"
+      , "fail": "El resultado no concuerda con lo esperado!"
     }
   , "error": {
         "missing_problem": "No se pudo encontrar el archivo problem.txt o problem.md de [{{{name}}}] {{{err}}}"
