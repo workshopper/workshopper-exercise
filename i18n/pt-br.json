@@ -1,0 +1,14 @@
+{
+    "compare": {
+        "title": "O seu envio comparado com o esperado:"
+      , "actual": "ATUAL"
+      , "expected": "ESPERADO"
+      , "pass": "O resultado bate com o esperado!"
+      , "fail": "O resultado não bate com o esperado!"
+    }
+  , "error": {
+        "missing_problem": "Não foi possível encontrar problem.pt-br.txt ou problem.pt-br.md para [{{{name}}}] {{{err}}}"
+      , "submission_no_file": "Nenhum arquivo: {{{submission}}}"
+      , "submission_not_regular": "Não parece o tipo de arquivo esperado: {{{submission}}}"
+    }
+}
