@@ -1,8 +1,9 @@
-const spawn = require('child_process').spawn
-    , path  = require('path')
-    , fs    = require('fs')
-    , after = require('after')
-    , xtend = require('xtend')
+const spawn     = require('child_process').spawn
+    , path      = require('path')
+    , fs        = require('fs')
+    , after     = require('after')
+    , xtend     = require('xtend')
+    , interpret = require('interpret')
 
 function execute (exercise, opts) {
   if (!opts) opts = {}
@@ -27,7 +28,7 @@ function execute (exercise, opts) {
           return callback(err)
 
         list = list
-          .filter(function (f) { return (/\.js$/).test(f) })
+          .filter(function (f) { return !!interpret.jsVariants[path.extname(f)] })
           .map(function (f) { return path.join(solutionDir, f)})
 
         callback(null, list)
@@ -50,8 +51,20 @@ function execute (exercise, opts) {
 
     // set this.solution if your solution is elsewhere
     if (!this.solution) {
-      var localisedSolutionPath = path.join(this.dir, './solution_' + this.lang + '/solution.js');
-      this.solution = fs.existsSync(localisedSolutionPath) ? localisedSolutionPath : path.join(this.dir, './solution/solution.js')
+      var self = this
+      Object.keys(interpret.jsVariants).some(function (extension) {
+        var localisedSolutionPath = path.join(self.dir, './solution_' + self.lang + '/solution' + extension)
+        var solutionPath = path.join(self.dir, './solution/solution' + extension)
+
+        if (fs.existsSync(localisedSolutionPath)) {
+          self.solution = localisedSolutionPath
+          return true
+        } else if (fs.existsSync(solutionPath)) {
+          self.solution = solutionPath
+          return true
+        }
+        return false
+      })
     }
 
     process.nextTick(callback)
@@ -73,9 +86,25 @@ function execute (exercise, opts) {
   function processor (mode, callback) {
     var ended = after(mode == 'verify' ? 2 : 1, kill.bind(this))
 
+    var submissionExtension = path.extname(this.submission),
+        solutionExtension = path.extname(this.solution)
+
+    // fail an exercise if the submission and solution file extensions don't match
+    if (submissionExtension !== solutionExtension) {
+      return process.nextTick(function () {
+        callback('submission should be a ' + solutionExtension + ' file', false)
+      })
+    }
+
     // backwards compat for workshops that use older custom setup functions
     if (!this.solutionCommand) this.solutionCommand = [ this.solution ].concat(this.solutionArgs)
     if (!this.submissionCommand) this.submissionCommand = [ this.submission ].concat(this.submissionArgs)
+
+    // add extensions from interpret, if needed
+    if (solutionExtension !== '.js' && interpret.jsVariants[solutionExtension]) {
+      this.solutionCommand.unshift('-r', interpret.extensions[solutionExtension])
+      this.submissionCommand.unshift('-r', interpret.extensions[solutionExtension])
+    }
 
     this.submissionChild  = spawn(opts.exec || process.execPath, this.submissionCommand, this.env)
     this.submissionStdout = this.getStdout('submission', this.submissionChild)
