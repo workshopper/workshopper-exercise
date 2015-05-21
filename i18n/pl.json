@@ -1,0 +1,14 @@
+{
+    "compare": {
+        "title": "Wyniki Twojego rozwiązania w porównaniu do oczekiwanych:"
+      , "actual": "UZYSKANE"
+      , "expected": "OCZEKIWANE"
+      , "pass": "Wyniki rozwiązania są zgodne z oczekiwanymi"
+      , "fail": "Wyniki rozwiązania nie są zgodne z oczekiwanymi!"
+    }
+  , "error": {
+        "missing_problem": "Nie udało się odnaleźć pliku problem.txt lub problem.md dla {{{name}}}] {{{err}}}"
+      , "submission_no_file": "Nie odnaleziono pliku: {{{submission}}}"
+      , "submission_not_regular": "To nie jest zwykły plik: {{{submission}}}"
+    }
+}
