@@ -17,8 +17,8 @@ function execute (exercise, opts) {
     return child.stdout
   }
 
-  exercise.getSolutionFiles = function (callback) {
-    var translated = path.join(this.dir, './solution_' + this.lang)
+  exercise.getSolutionFiles = function (callback, useDefault) {
+    var translated = path.join(this.dir, useDefault ? './solution' : ('./solution_' + this.lang))
     fs.exists(translated, function (exists) {
       var solutionDir = exists ? translated : path.join(this.dir, './solution')
 
@@ -29,6 +29,9 @@ function execute (exercise, opts) {
         list = list
           .filter(function (f) { return (/\.js$/).test(f) })
           .map(function (f) { return path.join(solutionDir, f)})
+
+        if (0 === list.length && exists && !useDefault)
+          return exercise.getSolutionFiles(callback, true)
 
         callback(null, list)
       })
