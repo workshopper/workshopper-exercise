@@ -19,20 +19,33 @@ function execute (exercise, opts) {
 
   exercise.getSolutionFiles = function (callback) {
     var translated = path.join(this.dir, './solution_' + this.lang)
-    fs.exists(translated, function (exists) {
-      var solutionDir = exists ? translated : path.join(this.dir, './solution')
+    var fallback = path.join(this.dir, './solution')
 
-      fs.readdir(solutionDir, function (err, list) {
-        if (err)
-          return callback(err)
+    checkPath(translated, function(err, list) {
+      if (list && list.length > 0)
+        return callback(null, list)
 
-        list = list
-          .filter(function (f) { return (/\.js$/).test(f) })
-          .map(function (f) { return path.join(solutionDir, f)})
+      checkPath(fallback, callback)
+    });
 
-        callback(null, list)
+
+    function checkPath(dir, callback) {
+      fs.exists(dir, function (exists) {
+        if (!exists)
+          return callback(null, []);
+
+        fs.readdir(dir, function (err, list) {
+          if (err)
+            return callback(err)
+
+          list = list
+            .filter(function (f) { return (/\.js$/).test(f) })
+            .map(function (f) { return path.join(dir, f)})
+
+          callback(null, list)
+        })
       })
-    }.bind(this))
+    }
   }
 
   return exercise
