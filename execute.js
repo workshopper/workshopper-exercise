@@ -90,7 +90,7 @@ function execute (exercise, opts) {
     if (!this.solutionCommand) this.solutionCommand = [ this.solution ].concat(this.solutionArgs)
     if (!this.submissionCommand) this.submissionCommand = [ this.submission ].concat(this.submissionArgs)
 
-    this.submissionChild  = spawn(opts.exec || process.execPath, this.submissionCommand, this.env)
+    this.submissionChild  = spawn(opts.exec || process.execPath, this.submissionCommand, { env: this.env })
     this.submissionStdout = this.getStdout('submission', this.submissionChild)
 
     setImmediate(function () { // give other processors a chance to overwrite stdout
@@ -98,7 +98,7 @@ function execute (exercise, opts) {
     }.bind(this))
 
     if (mode == 'verify') {
-      this.solutionChild  = spawn(opts.exec || process.execPath, this.solutionCommand, this.env)
+      this.solutionChild  = spawn(opts.exec || process.execPath, this.solutionCommand, { env: this.env })
       this.solutionStdout = this.getStdout('solution', this.solutionChild)
 
       setImmediate(function () { // give other processors a chance to overwrite stdout
