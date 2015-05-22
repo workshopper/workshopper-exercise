@@ -1,0 +1,14 @@
+{
+    "compare": {
+        "title": "So sách kết quả của bạn với kết quả mong đợi:"
+      , "actual": "CỦA BẠN"
+      , "expected": "MONG ĐỢI"
+      , "pass": "Kết quả khớp với mong đợi"
+      , "fail": "Kết quả chưa khớp với mong đợi!"
+    }
+  , "error": {
+        "missing_problem": "Không tìm thấy file problem.txt hoặc problem.md cho [{{{name}}}] {{{err}}}"
+      , "submission_no_file": "Không có file: {{{submission}}}"
+      , "submission_not_regular": "Không phải là file thông dụng: {{{submission}}}"
+    }
+}
