@@ -1,0 +1,14 @@
+{
+    "compare": {
+        "title": "Sinu esitatud tulemused võrreldes oodatuga:"
+      , "actual": "TEGELIK"
+      , "expected": "OODATUD"
+      , "pass": "Esitatud tulemused kattuvad oodatuga"
+      , "fail": "Esitatud tulemused ei kattu oodatuga!"
+    }
+  , "error": {
+        "missing_problem": "Ei leidnud problem.txt või problem.md [{{{name}}}] jaoks {{{err}}}"
+      , "submission_no_file": "Antud faili ei eksisteeri: {{{submission}}}"
+      , "submission_not_regular": "Ei ole korrapärane fail: {{{submission}}}"
+    }
+}
