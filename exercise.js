@@ -78,7 +78,7 @@ Exercise.prototype.init = function (workshopper, id, name, dir, number) {
         , lookup = 'exercises.' + name + '.' + key
         , fallback = 'common.exercise.' + key
       return i18n.has(lookup) ? i18n.raw(lookup) :
-             i18nFs.get(workshopper.lang + '.' + key) || (
+             i18nFs.get((i18n.lang ? i18n.lang() : workshopper.lang) + '.' + key) || (
                i18n.has(fallback) ? i18n.raw(fallback) :
                i18n.raw(key)
              )
