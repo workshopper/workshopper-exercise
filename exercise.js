@@ -70,7 +70,8 @@ function runOnly (fn) {
 Exercise.prototype.init = function (workshopper, id, name, dir, number) {
   this.workshopper = workshopper
   this.__defineGetter__('lang', function () {
-    return workshopper.lang
+    var i18n = workshopper.i18n
+    return (i18n.lang ? i18n.lang() : workshopper.lang)
   })
   this.i18n        = i18n({
     get: function (key) {
@@ -78,11 +79,11 @@ Exercise.prototype.init = function (workshopper, id, name, dir, number) {
         , lookup = 'exercises.' + name + '.' + key
         , fallback = 'common.exercise.' + key
       return i18n.has(lookup) ? i18n.raw(lookup) :
-             i18nFs.get((i18n.lang ? i18n.lang() : workshopper.lang) + '.' + key) || (
+             i18nFs.get(this.lang + '.' + key) || (
                i18n.has(fallback) ? i18n.raw(fallback) :
                i18n.raw(key)
              )
-    }
+    }.bind(this)
   })
   this.i18n.fallback = function (key) {
     if (!key)
