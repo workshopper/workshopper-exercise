@@ -1,6 +1,6 @@
 {
   "name": "workshopper-exercise",
-  "version": "2.5.1",
+  "version": "2.5.2",
   "description": "An exercise runner component for the Workshopper framework",
   "main": "./exercise.js",
   "author": "Rod Vagg <rod@vagg.org> (https://github.com/rvagg)",
