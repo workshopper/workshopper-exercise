@@ -88,7 +88,7 @@ Exercise.prototype.init = function (workshopper, id, name, dir, number) {
     if (!key)
       return '(???)'
 
-    return '?exercises.' + name + '.' + key + ' || common.exercise.' + key + '?'
+    return '?exercises.' + name + '.' + key + ' || common.exercise.' + key + ' || ' + key + '?'
   }
   this.__          = this.i18n.__
   this.__n         = this.i18n.__n
