@@ -71,7 +71,11 @@ Exercise.prototype.init = function (workshopper, id, name, dir, number) {
   this.workshopper = workshopper
   this.__defineGetter__('lang', function () {
     var i18n = workshopper.i18n
-    return (i18n.lang ? i18n.lang() : workshopper.lang)
+    if (workshopper.lang) {
+      return workshopper.lang
+    } else {
+      return i18n.lang()
+    }
   })
   this.i18n        = i18n({
     get: function (key) {
