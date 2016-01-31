@@ -2,7 +2,7 @@ const chalk    = require('chalk')
     , split    = require('split')
     , tuple    = require('tuple-stream')
     , through2 = require('through2')
-    , vw       = require('visualwidth')
+    , wcsize   = require('wcsize')
 
 
 function comparestdout (exercise) {
@@ -21,7 +21,7 @@ function repeat (ch, sz) {
 
 
 function center (s, sz) {
-  var sps = Math.floor((sz - vw.width(s, true)) / 2)
+  var sps = Math.floor((sz - wcsize(s)) / 2)
     , sp  = repeat(' ', sps)
   return sp + s + sp + (sp.length != sps ? ' ' : '')
 }
@@ -29,7 +29,7 @@ function center (s, sz) {
 
 function wrap (s_, n) {
   var s = String(s_)
-  return s + repeat(' ', Math.max(0, n + 1 - vw.width(s, true)))
+  return s + repeat(' ', Math.max(0, n + 1 - wcsize(s)))
 }
 
 
