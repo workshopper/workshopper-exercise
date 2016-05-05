@@ -1,0 +1,14 @@
+{
+    "compare": {
+        "title": "I risultati della tua soluzione a confronto con quelli previsti:"
+      , "actual": "ATTUALI"
+      , "expected": "PREVISTI"
+      , "pass": "I risultati coincidono con quelli previsti"
+      , "fail": "I risultati non coincidono con quelli previsti!"
+    }
+  , "error": {
+        "missing_problem": "Impossibile trovare problem.txt o problem.md per [{{{name}}}] {{{err}}}"
+      , "submission_no_file": "File mancante: {{{submission}}}"
+      , "submission_not_regular": "File non corretto: {{{submission}}}"
+    }
+}
