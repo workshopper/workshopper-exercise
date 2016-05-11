@@ -1,0 +1,14 @@
+{
+    "compare": {
+        "title": "Ваш покушај упоређен са очекиваним резултатом:"
+      , "actual": "ТРЕНУТАН"
+      , "expected": "ОЧЕКИВАНИ"
+      , "pass": "Резултати покушаја одговорају очекиваним!"
+      , "fail": "Резултати покушаја не одговорају очекиваним!"
+    }
+  , "error": {
+        "missing_problem": "Не могу да нађем problem.txt или problem.md за [{{{name}}}] {{{err}}}"
+      , "submission_no_file": "Нема датотеке: {{{submission}}}"
+      , "submission_not_regular": "Неисправна датотека: {{{submission}}}"
+    }
+}
