@@ -15,7 +15,7 @@
   "dependencies": {
     "after": "~0.8.1",
     "chalk": "^1.1.1",
-    "i18n-core": "^2.1.1",
+    "i18n-core": "^3.0.0",
     "split": "^1.0.0",
     "through2": "^2.0.0",
     "tuple-stream": "0.0.2",
