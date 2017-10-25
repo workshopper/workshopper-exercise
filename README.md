@@ -5,9 +5,7 @@
 In `/exercises/${EXERCISE_NAME}/exercise.js`:
 
 ```javascript
-'use strict';
-
-var exercise = require('workshopper-exercise')();
+const exercise = require('workshopper-exercise')();
 
 function sureToFail(errback) {
     exercise = this;
