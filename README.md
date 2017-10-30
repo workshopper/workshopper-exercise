@@ -8,7 +8,6 @@ In `/exercises/${EXERCISE_NAME}/exercise.js`:
 const exercise = require('workshopper-exercise')();
 
 function sureToFail(errback) {
-    exercise = this;
     exercise.emit('fail', 'told you it was going to fail');
     errback(null, false);
 }
@@ -29,10 +28,10 @@ This exercise will always fail, with the output:
 
 ─────────────────────────────────────────────────────────────────────────────
 
-  » To print these instructions again, run: ${WORKSHOP_NAME} print             
-  » To execute your program in a test environment, run: ${WORKSHOP_NAME} run                                                                          
-    program.js                                                                
-  » To verify your program, run: ${WORKSHOP_NAME} verify program.js            
+  » To print these instructions again, run: ${WORKSHOP_NAME} print
+  » To execute your program in a test environment, run: ${WORKSHOP_NAME} run
+    program.js
+  » To verify your program, run: ${WORKSHOP_NAME} verify program.js
   » For help run: ${WORKSHOP_NAME} help 
 ```
 
@@ -52,7 +51,6 @@ In `/exercises/${EXERCISE_NAME}/exercise.js`:
 const exercise = require('workshopper-exercise')();
 
 function pureLuck(errback) {
-    exercise = this;
     const chance = Math.random();
     const pass = chance < 0.5;
     if (pass) {
@@ -106,7 +104,7 @@ you will need to create one of these files per language,
 where the keys are identical and the values are translated into each language.
 For example, the line for `pass.lucky` for the தமிழ் language would be: 
 `"lucky": "நீ அதிர்ஷ்டசாலி :) {{chance}}"`,
-and would in the `/i18n/ta.json` file.
+and would be in the `/i18n/ta.json` file.
 
 When this exercise fails, it will output:
 
@@ -119,7 +117,7 @@ When this exercise fails, it will output:
 
 ─────────────────────────────────────────────────────────────────────────────
 
-  » To print these instructions again, run: ${WORKSHOP_NAME} print             
+  » To print these instructions again, run: ${WORKSHOP_NAME} print
   » To execute your program in a test environment, run: ${WORKSHOP_NAME} run                                                                          
     program.js                                                                
   » To verify your program, run: ${WORKSHOP_NAME} verify program.js            
@@ -142,8 +140,77 @@ When this exercise fails, it will output:
 ─────────────────────────────────────────────────────────────────────────────
 
   » To print these instructions again, run: ${WORKSHOP_NAME} print             
-  » To execute your program in a test environment, run: ${WORKSHOP_NAME} run                                                                          
-    program.js                                                                
-  » To verify your program, run: ${WORKSHOP_NAME} verify program.js            
+  » To execute your program in a test environment, run: ${WORKSHOP_NAME} run
+    program.js
+  » To verify your program, run: ${WORKSHOP_NAME} verify program.js
+  » For help run: ${WORKSHOP_NAME} help
+```
+
+## How to get command line arguments
+
+The command line arguments passed into the `verify` subcommand
+can be accessed within an exercise via the `args` property.
+
+In `/exercises/${EXERCISE_NAME}/exercise.js`:
+
+```javascript
+const exercise = require('workshopper-exercise')();
+
+function firstArgMustBeFoo(errback) {
+    const pass = exercise.args[0] === 'foo';
+    if (pass) {
+      exercise.emit('pass', 'first CLI argument was foo');
+    } else {
+      exercise.emit('fail', 'first CLI argument wasn\'t foo');
+    }
+    errback(null, pass);
+}
+
+exercise.addVerifyProcessor(firstArgMustBeFoo);
+
+module.exports = exercise;
+```
+
+Command line arguments have a variety of use cases,
+and in workshopper exercises,
+one would typically use it to specify the submission file name.
+
+When you run `${WORKSHOP_NAME} verify bar`, it will output:
+
+```bash
+ ✗ 
+
+ first CLI argument wasn't foo
+
+ # FAIL Your solution to ${EXERCISE_NAME} didn't pass. Try again!
+
+─────────────────────────────────────────────────────────────────────────────
+
+  » To print these instructions again, run: ${WORKSHOP_NAME} print
+  » To execute your program in a test environment, run: ${WORKSHOP_NAME} run
+    program.js
+  » To verify your program, run: ${WORKSHOP_NAME} verify program.js
+  » For help run: ${WORKSHOP_NAME} help
+```
+
+... and when you run `${WORKSHOP_NAME} verify foo`, it will output:
+
+```bash
+ ✓ 
+
+ first CLI argument was foo
+
+ # PASS Your solution to ${EXERCISE_NAME} passed!
+
+ You have ${REMAINING_EXERCISE_COUNT} challenges left.
+
+ Type '${WORKSHOP_NAME}' to show the menu.
+
+─────────────────────────────────────────────────────────────────────────────
+
+  » To print these instructions again, run: ${WORKSHOP_NAME} print
+  » To execute your program in a test environment, run: ${WORKSHOP_NAME} run
+    program.js
+  » To verify your program, run: ${WORKSHOP_NAME} verify program.js
   » For help run: ${WORKSHOP_NAME} help
 ```
