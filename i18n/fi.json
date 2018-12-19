@@ -1,0 +1,14 @@
+{
+    "compare": {
+        "title": "Palauttamasi ohjelman tuloste verrattuna odotettuun:"
+      , "actual": "OHJELMASI TULOSTE"
+      , "expected": "ODOTETTU TULOSTE"
+      , "pass": "Palauttamasi ohjelman tuloste vastaa odotettua"
+      , "fail": "Palauttamasi ohjelman tuloste on virheellinen!"
+    }
+  , "error": {
+        "missing_problem": "Ei löytynyt problem.txt tai problem.md tiedostoa tehtävälle [{{{name}}}] {{{err}}}"
+      , "submission_no_file": "Tiedostoa {{{submission}}} ei löydy"
+      , "submission_not_regular": "Tiedoston {{{submission}}} muoto on virheellinen"
+    }
+}
