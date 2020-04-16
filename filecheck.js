@@ -1,29 +1,41 @@
 const fs = require('fs')
-    , path = require('path')
-
+const path = require('path')
 
 function setup (mode, callback) {
-  var submission = this.args[0]
+  const fileError = function (i18nKey) {
+    return callback(new Error(this.__(i18nKey, {submission: submissionPath})))
+  }.bind(this)
+
+  const noFileError = function () {
+    return fileError('error.submission_no_file')
+  }
+
+  const notRegularError = function () {
+    return fileError('error.submission_not_regular')
+  }
+
+  const submission = this.args[0]
+  const submissionPath = submission ? path.resolve(submission.toString()) : ''
+
+  if (!submission) return noFileError()
 
   fs.stat(submission.toString(), function (err, stat) {
     if ((err && err.code == 'ENOENT') || !stat)
-      return callback(new Error(this.__('error.submission_no_file', {submission: path.resolve(submission.toString())})))
+      return noFileError()
 
     if (err)
       return callback(err)
 
     if (!stat.isFile())
-      return callback(new Error(this.__('error.submission_not_regular', {submission: path.resolve(submission.toString())})))
+      return notRegularError()
 
     callback()
-  }.bind(this))
+  })
 }
-
 
 function filecheck (exercise) {
   exercise.addSetup(setup)
   return exercise
 }
-
 
 module.exports = filecheck
