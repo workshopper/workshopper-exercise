@@ -23,6 +23,7 @@
     "xtend": "^4.0.1"
   },
   "devDependencies": {
+    "sinon": "^9.0.2",
     "tape": "^4.2.0"
   }
 }
