@@ -11,7 +11,8 @@
   "scripts": {
     "test": "npm run test:lint && npm run test:unit",
     "test:lint": "standard",
-    "test:unit": "tape test/*.js"
+    "test:unit": "tape test/*.js",
+    "release": "standard-version"
   },
   "license": "MIT",
   "dependencies": {
@@ -27,6 +28,7 @@
   "devDependencies": {
     "sinon": "^9.0.2",
     "standard": "^14.3.4",
+    "standard-version": "^8.0.0",
     "tape": "^4.2.0"
   }
 }
