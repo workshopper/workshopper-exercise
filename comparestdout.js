@@ -1,42 +1,36 @@
-const chalk    = require('chalk')
-    , split    = require('split')
-    , tuple    = require('tuple-stream')
-    , through2 = require('through2')
-    , wcstring   = require('wcstring')
-
+const chalk = require('chalk')
+const split = require('split')
+const tuple = require('tuple-stream')
+const through2 = require('through2')
+const wcstring = require('wcstring')
 
 function comparestdout (exercise) {
   return exercise.addProcessor(processor)
 }
 
-
 function colourfn (type) {
-  return type == 'PASS' ? chalk.green : chalk.red
+  return type === 'PASS' ? chalk.green : chalk.red
 }
-
 
 function repeat (ch, sz) {
   return new Array(sz + 1).join(ch)
 }
 
-
 function center (s, sz) {
-  var sps = Math.floor((sz - wcstring(s).size()) / 2)
-    , sp  = repeat(' ', sps)
-  return sp + s + sp + (sp.length != sps ? ' ' : '')
+  const sps = Math.floor((sz - wcstring(s).size()) / 2)
+  const sp = repeat(' ', sps)
+  return sp + s + sp + (sp.length !== sps ? ' ' : '')
 }
-
 
 function wrap (s_, n) {
-  var s = String(s_)
+  const s = String(s_)
   return s + repeat(' ', Math.max(0, n + 1 - wcstring(s).size()))
 }
-
 
 function processor (mode, callback) {
   this.submissionChild.stderr.pipe(process.stderr)
 
-  if (mode == 'run' || !this.solutionChild) {
+  if (mode === 'run' || !this.solutionChild) {
     // no compare needed
     this.submissionStdout.pipe(process.stdout)
     return this.on('executeEnd', function () {
@@ -44,51 +38,45 @@ function processor (mode, callback) {
     })
   }
 
-  var equal = true
-    , line  = 1
-    , outputStream
+  let equal = true
+  let line = 1
+  const outputStream = through2.obj(transform.bind(this), flush.bind(this))
 
   function transform (chunk, enc, callback) {
+    if (line === 1) {
+      outputStream.push('\n' + this.__('compare.title') + '\n\n')
 
-    if (line == 1) {
-      outputStream.push("\n" + this.__('compare.title') + "\n\n")
-
-      if (!this.longCompareOutput)
-        outputStream.push(chalk.yellow(center(this.__('compare.actual'), 40) + center(this.__('compare.expected'), 40) + '\n'))
+      if (!this.longCompareOutput) { outputStream.push(chalk.yellow(center(this.__('compare.actual'), 40) + center(this.__('compare.expected'), 40) + '\n')) }
 
       outputStream.push(chalk.yellow(repeat('\u2500', 80)) + '\n\n')
     }
 
-    var eq        = chunk[0] === chunk[1]
-      , lineStr   = wrap(String(line++ + '.'), 3)
-      , _colourfn = colourfn(eq ? 'PASS' : 'FAIL')
-      , actual    = chunk[0] == null ? '' : JSON.stringify(chunk[0])
-      , expected  = chunk[1] == null ? '' : JSON.stringify(chunk[1])
-      , output
+    const eq = chunk[0] === chunk[1]
+    const lineStr = wrap(String(line++ + '.'), 3)
+    const _colourfn = colourfn(eq ? 'PASS' : 'FAIL')
+    const actual = chunk[0] == null ? '' : JSON.stringify(chunk[0])
+    const expected = chunk[1] == null ? '' : JSON.stringify(chunk[1])
+    let output
 
     equal = equal && eq
 
     if (this.longCompareOutput) {
-
       output =
-          chalk.yellow(wrap(lineStr + this.__('compare.actual')   + ":", 14))
-        + _colourfn(actual)
-        + '\n'
-        + chalk.yellow(wrap(lineStr + this.__('compare.expected') + ":", 14))
-        + _colourfn(expected)
-        + '\n\n'
-
+          chalk.yellow(wrap(lineStr + this.__('compare.actual') + ':', 14)) +
+        _colourfn(actual) +
+        '\n' +
+        chalk.yellow(wrap(lineStr + this.__('compare.expected') + ':', 14)) +
+        _colourfn(expected) +
+        '\n\n'
     } else {
-
       output =
-          //_colourfn(lineStr)
-          '   '
-        + _colourfn(wrap(actual, 34))
-        + _colourfn(chalk.bold(eq ? ' == ' : ' != '))
-        + '   '
-        + _colourfn(wrap(expected, 34))
-        + '\n'
-
+          // _colourfn(lineStr)
+          '   ' +
+        _colourfn(wrap(actual, 34)) +
+        _colourfn(chalk.bold(eq ? ' == ' : ' != ')) +
+        '   ' +
+        _colourfn(wrap(expected, 34)) +
+        '\n'
     }
 
     callback(null, output)
@@ -103,8 +91,6 @@ function processor (mode, callback) {
 
     callback(null, equal) // process() callback
   }
-
-  outputStream = through2.obj(transform.bind(this), flush.bind(this))
 
   tuple(this.submissionStdout.pipe(split()), this.solutionStdout.pipe(split()))
     .pipe(outputStream)

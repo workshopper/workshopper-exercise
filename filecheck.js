@@ -1,9 +1,9 @@
 const fs = require('fs')
 const path = require('path')
 
-function setup (mode, callback) {
+function setup (_mode, callback) {
   const fileError = function (i18nKey) {
-    return callback(new Error(this.__(i18nKey, {submission: submissionPath})))
+    return callback(new Error(this.__(i18nKey, { submission: submissionPath })))
   }.bind(this)
 
   const noFileError = function () {
@@ -20,14 +20,11 @@ function setup (mode, callback) {
   if (!submission) return noFileError()
 
   fs.stat(submission.toString(), function (err, stat) {
-    if ((err && err.code == 'ENOENT') || !stat)
-      return noFileError()
+    if ((err && err.code === 'ENOENT') || !stat) { return noFileError() }
 
-    if (err)
-      return callback(err)
+    if (err) { return callback(err) }
 
-    if (!stat.isFile())
-      return notRegularError()
+    if (!stat.isFile()) { return notRegularError() }
 
     callback()
   })

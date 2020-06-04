@@ -27,7 +27,7 @@ test('fail when no file submitted', (t) => {
   exercise = filecheck(exercise)
   exercise.run([], () => {})
   t.equal(exercise.__.callCount, 1)
-  t.ok(exercise.__.calledWith('error.submission_no_file', {submission: ''}))
+  t.ok(exercise.__.calledWith('error.submission_no_file', { submission: '' }))
 })
 
 test('fail when wrong file submitted', async (t) => {

@@ -9,7 +9,9 @@
     "url": "https://github.com/rvagg/workshopper-exercise.git"
   },
   "scripts": {
-    "test": "tape test/*.js"
+    "test": "npm run test:lint && npm run test:unit",
+    "test:lint": "standard",
+    "test:unit": "tape test/*.js"
   },
   "license": "MIT",
   "dependencies": {
@@ -24,6 +26,7 @@
   },
   "devDependencies": {
     "sinon": "^9.0.2",
+    "standard": "^14.3.4",
     "tape": "^4.2.0"
   }
 }
